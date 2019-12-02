@@ -32,7 +32,7 @@ All parameter changes are listed in the `hip.go_vs_hip-SL.go_param_changes.xlsx`
 | C++ model cycles	| 40	 | 40	| 20   |
 | Golang model cycles	| 25	 | 50   | 25   |
 
-Note: Training stimuli have also been tweaked for better performance. AB pair presentation strengths at Input:
+Note: Training stimuli presentation has also been tweaked for better performance. AB pair presentation strengths at Input:
 
 | 			| A | B |
 |---------------	|----	 | ---	|

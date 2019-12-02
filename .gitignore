@@ -1,0 +1,7 @@
+.vscode
+*.exe
+proj
+ouput/
+Hip_Base_epc.csv
+Hip_Base_run.csv
+hip_pairs/wts.csv

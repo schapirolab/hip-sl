@@ -33,5 +33,5 @@ All parameter changes are listed in the `hip.go_vs_hip-SL.go_param_changes.xlsx`
 | Golang model cycles	| 25	 | 50   | 25   |
 
 ### Differences in results between the C++ emergent version and hip-SL.go
-The only major result change in terms of the graphs produced is the lack of a checkerboard (see Schapiro et al. 2017) in the 'Initial Response' heatmap for CA1.
+The only observed qualatative change in results is the lack of a checkerboard pattern (see Schapiro et al. 2017) in the 'Initial Response' heatmap for CA1.
 

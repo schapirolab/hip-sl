@@ -32,6 +32,13 @@ All parameter changes are listed in the `hip.go_vs_hip-SL.go_param_changes.xlsx`
 | C++ model cycles	| 40	 | 40	| 20   |
 | Golang model cycles	| 25	 | 50   | 25   |
 
+Note: Training stimuli have also been tweaked for better performance. AB pair presentation strengths at Input:
+
+| 			| A | B |
+|---------------	|----	 | ---	|
+| C++ model 	| 0.9	 | 0.95	|
+| Golang model 	| 0.8	 | 0.95   |
+
 ### Differences in results between the C++ emergent version and hip-SL.go
 The only observed qualatative change in results is the lack of a checkerboard pattern (see Schapiro et al. 2017) in the 'Initial Response' heatmap for CA1.
 

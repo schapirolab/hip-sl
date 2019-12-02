@@ -40,5 +40,5 @@ Note: Training stimuli presentation has also been tweaked for better performance
 | Golang model 	| 0.8	 | 0.95   |
 
 ### Differences in results between the C++ emergent version and hip-SL.go
-The only observed qualatative change in results is the lack of a checkerboard pattern (see Schapiro et al. 2017) in the 'Initial Response' heatmap for CA1.
+The only observed qualitative change in results is the lack of a checkerboard pattern (see Schapiro et al. 2017) in the 'Initial Response' heatmap for CA1.
 

@@ -29,8 +29,8 @@ All parameter changes are listed in the `hip.go_vs_hip-SL.go_param_changes.xlsx`
 
 | 			| ActMid | ActM | ActP |
 |---------------	|----	 | ---	| ---  |
-| C++ model cycles	| 40	 | 40	| 20   |
-| Golang model cycles	| 25	 | 50   | 25   |
+| C++ model point of capture	| 40	 | 80 | 100   |
+| Golang model point of capture	| 25	 | 75   | 100   |
 
 Note: Training stimuli presentation has also been tweaked for better performance. AB pair presentation strengths at Input:
 

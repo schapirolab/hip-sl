@@ -41,4 +41,4 @@ Note: Training stimuli presentation has also been tweaked for better performance
 
 ### Differences in results between the C++ emergent version and hip-SL.go
 The only observed qualitative change in results is the lack of a checkerboard pattern (see Schapiro et al. 2017) in the 'Initial Response' heatmap for CA1.
-
+Please see https://github.com/schapirolab/hip-sl/wiki/Results for full results.

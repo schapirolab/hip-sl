@@ -9,7 +9,7 @@ The model has been re-written for the Golang emergent (www.github.com/emer/emerg
 1. Install Golang.
 2. Install emergent by following the instructions at www.github.com/emer/emergent/wiki/Install.
 3. Download/Clone this repository.
-4. `cd` to the repo folder and run the command `go build && hip-SL`.
+4. `cd` to the repo folder and run the command `go build && hip-sl`.
 
 This should open the GUI view for the model. Please refer to emergent documentation for information on the GUI view.
 

@@ -25,12 +25,12 @@ All parameter changes are listed in the `hip.go_vs_hip-SL.go_param_changes.xlsx`
 | MSP    	| 0.02		| 0.05 		|
 | TSP     	| 0.2      	| 0.4 		|
 
-3. Golang emergent divides trials into four quarters of 25 cycles each, with each quarter serving as a different learning phase. The ActMid, ActM and ActP learning variables from C++ emergent are therefore captured at different timepoints in a Golang emergent training trial vs a C++ emergent training trial:
+3. Golang emergent divides trials into four quarters of 25 cycles each, with each quarter serving as a different learning phase. The ActMid, ActM and ActP learning variables from C++ emergent are therefore recorded at different timepoints in a Golang emergent training trial vs a C++ emergent training trial. Cycle at which each variable is recorded for the two models:
 
 | 			| ActMid | ActM | ActP |
 |---------------	|----	 | ---	| ---  |
-| C++ model point of capture	| 40	 | 80 | 100   |
-| Golang model point of capture	| 25	 | 75   | 100   |
+| C++ model	| 40	 | 80 | 100   |
+| Golang model	| 25	 | 75   | 100   |
 
 Note: Training stimuli presentation has also been tweaked for better performance. AB pair presentation strengths at Input:
 

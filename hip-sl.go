@@ -474,6 +474,8 @@ func (ss *Sim) AlphaCyc(train bool) {
 	ca1FmECin := ca1.RcvPrjns.SendName("ECin").(*hip.EcCa1Prjn)
 	ca1FmCa3 := ca1.RcvPrjns.SendName("CA3").(*hip.CHLPrjn)
 
+	input := ss.Net.LayerByName("Input").(*leabra.Layer)
+
 	// DS: declaring vars to store cycle data for the whole trial
 	var ecinTrlCycActs [][]float32
 	var ecoutTrlCycActs [][]float32
@@ -549,7 +551,7 @@ func (ss *Sim) AlphaCyc(train bool) {
 				ss.Net.InitGInc()       // scaling params change, so need to recompute all netins
 			}
 			if train { // clamp ECout from ECin
-				ecin.UnitVals(&ss.TmpVals, "Act")
+				input.UnitVals(&ss.TmpVals, "Act") //original clamping from ecin rather than input
 				ecout.ApplyExt1D32(ss.TmpVals)
 			}
 		}
@@ -1212,7 +1214,7 @@ func (ss *Sim) OpenPats() {
 	//patgen.ReshapeCppFile(ss.TestAB, "Test_pairs.dat", "Test_pairs_go.dat")
 	// patgen.ReshapeCppFile(ss.TestAC, "Test_AC.dat", "TestAC.dat")
 	// patgen.ReshapeCppFile(ss.TestLure, "Lure.dat", "TestLure.dat")
-	ss.OpenPat(ss.TrainSL, "Train_pairs_go.dat", "SL Training Patterns")
+	ss.OpenPat(ss.TrainSL, "Train_pairs.dat", "SL Training Patterns")
 	ss.OpenPat(ss.TrainEpisodic, "Train_pairs_without_transitions_go.dat", "Episodic Training Patterns")
 	ss.OpenPat(ss.TestSL, "Test_pairs_go.dat", "SL Testing Patterns")
 	//ss.OpenPat(ss.TestAC, "TestAC.dat", "AC Testing Patterns")

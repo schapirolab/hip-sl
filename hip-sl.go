@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// hip runs a hippocampus model on the AB-AC paired associate learning task
+// hip-sl runs the Schapiro et al., 2017 hippocampus model on the statistical learning simulation
 package main
 
 import (

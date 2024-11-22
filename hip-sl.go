@@ -147,7 +147,7 @@ type Sim struct {
 	LastEpcTime  time.Time        `view:"-" desc:"timer for last epoch"`
 
 	// DS: vars for storing seed tag
-	DirSeed 	int64 			`view:"-" desc:"the seed tag for output data directory"`
+	DirSeed int64 `view:"-" desc:"the seed tag for output data directory"`
 	// ACon      int64            `view:"-" desc:"the current random seed"`
 }
 
@@ -285,7 +285,6 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 	pj = net.ConnectLayersPrjn(ca3, ca1, path, emer.Forward, &hip.CHLPrjn{})
 	pj.SetClass("HippoCHL")
 
-
 	pj = net.ConnectLayersPrjn(ecin, dg, ppath, emer.Forward, &hip.CHLPrjn{})
 	pj.SetClass("HippoCHL")
 
@@ -301,14 +300,13 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 	pj.SetClass("HippoCHL")
 
 	// Schafer collaterals
-	pj = net.ConnectLayersPrjn(ca3, ca1, path , emer.Forward, &hip.CHLPrjn{}) // changed from prjn.NewFull() to ppath
+	pj = net.ConnectLayersPrjn(ca3, ca1, path, emer.Forward, &hip.CHLPrjn{}) // changed from prjn.NewFull() to ppath
 	pj.SetClass("HippoCHL")
 
-
 	// using 3 threads total
-	dg.SetThread(1)
-	ca3.SetThread(2) // for larger models, could put on separate thread
-	ca1.SetThread(3)
+	dg.(leabra.LeabraLayer).SetThread(1)
+	ca3.(leabra.LeabraLayer).SetThread(2) // for larger models, could put on separate thread
+	ca1.(leabra.LeabraLayer).SetThread(3)
 
 	// note: if you wanted to change a layer type from e.g., Target to Compare, do this:
 	// outLay.SetType(emer.Compare)
@@ -359,7 +357,7 @@ func (ss *Sim) Counters(train bool) string {
 
 func (ss *Sim) UpdateView(train bool) {
 	if ss.NetView != nil && ss.NetView.IsVisible() {
-		ss.NetView.Record(ss.Counters(train))
+		ss.NetView.Record(ss.Counters(train), -1)
 		// note: essential to use Go version of update when called from another goroutine
 		ss.NetView.GoUpdate() // note: using counters is significantly slower..
 	}
@@ -394,16 +392,9 @@ func (ss *Sim) AlphaCyc(train bool) {
 	dg := ss.Net.LayerByName("DG").(*leabra.Layer)   //DS added
 	ecin := ss.Net.LayerByName("ECin").(leabra.LeabraLayer).AsLeabra()
 	ecout := ss.Net.LayerByName("ECout").(leabra.LeabraLayer).AsLeabra()
-	ca1FmECin := ca1.RcvPrjns.SendName("ECin").(*hip.EcCa1Prjn)
-	ca1FmCa3 := ca1.RcvPrjns.SendName("CA3").(*hip.CHLPrjn)
-	//ca3Fmdg := ca3.RcvPrjns.SendName("DG").(*hip.CHLPrjn)
-
-	//ecinFmecout := ecin.RcvPrjns.SendName("ECout").(*hip.EcCa1Prjn)
-	//ca1Fmecout := ca1.RcvPrjns.SendName("ECout").(*hip.EcCa1Prjn)
-	ecoutFmCa1 := ecout.RcvPrjns.SendName("CA1").(*hip.EcCa1Prjn)
-	//ca1fmecout := ca1.RcvPrjns.SendName("ECout").(*hip.EcCa1Prjn)
-
-	//ecoutFmCa3 := ecout.RcvPrjns.SendName("CA3").(*hip.CHLPrjn)
+	ca1FmECin := ca1.SendName("ECin").(*hip.EcCa1Prjn)
+	ca1FmCa3 := ca1.SendName("CA3").(*hip.CHLPrjn)
+	ecoutFmCa1 := ecout.SendName("CA1").(*hip.EcCa1Prjn)
 
 	// First Quarter: CA1 is driven by ECin, not by CA3 recall
 	// (which is not really active yet anyway)
@@ -442,7 +433,7 @@ func (ss *Sim) AlphaCyc(train bool) {
 		ca1FmCa3.WtScale.Abs = 0
 	}
 
-	ss.Net.AlphaCycInit()
+	ss.Net.AlphaCycInit(train)
 	ss.Time.AlphaCycStart()
 	for qtr := 0; qtr < 4; qtr++ {
 		for cyc := 0; cyc < ss.Time.CycPerQtr; cyc++ {
@@ -481,31 +472,29 @@ func (ss *Sim) AlphaCyc(train bool) {
 			ca3TrlCycActs = append(ca3TrlCycActs, ca3TrlCycAct)
 		}
 
-
 		switch qtr + 1 {
 		case 1: // Second, Third Quarters: CA1 is driven by CA3 recall
-		if train {
-			ca1FmECin.WtScale.Abs = 0
-			ca1FmCa3.WtScale.Abs = 1
-			ss.Net.GScaleFmAvgAct() // update computed scaling factors
-			ss.Net.InitGInc()       // scaling params change, so need to recompute all netins
-		}
+			if train {
+				ca1FmECin.WtScale.Abs = 0
+				ca1FmCa3.WtScale.Abs = 1
+				ss.Net.GScaleFmAvgAct() // update computed scaling factors
+				ss.Net.InitGInc()       // scaling params change, so need to recompute all netins
+			}
 		//if !train {
 		//	ecoutFmCa1.WtScale.Abs = 1
 		//	ecoutFmpCa1.WtScale.Abs = 2
 		//}
-			//if !train {
-			//	ecoutFmCa1.WtScale.Abs = 1
-			//}
-
+		//if !train {
+		//	ecoutFmCa1.WtScale.Abs = 1
+		//}
 
 		case 3: // Fourth Quarter: CA1 back to ECin drive only
-			if train{
-			ca1FmECin.WtScale.Abs = 3
-			ca1FmCa3.WtScale.Abs = 0
-			ss.Net.GScaleFmAvgAct() // update computed scaling factors
-			ss.Net.InitGInc()       // scaling params change, so need to recompute all netins
-		}
+			if train {
+				ca1FmECin.WtScale.Abs = 3
+				ca1FmCa3.WtScale.Abs = 0
+				ss.Net.GScaleFmAvgAct() // update computed scaling factors
+				ss.Net.InitGInc()       // scaling params change, so need to recompute all netins
+			}
 
 			if train { // clamp ECout from ECin
 				input.UnitVals(&ss.TmpVals, "Act") // Changed from input to ecin
@@ -543,7 +532,7 @@ func (ss *Sim) AlphaCyc(train bool) {
 		ss.DirSeed = ss.RndSeed
 	}
 
-	if (!train) {
+	if !train {
 		//t := time.Now()
 		//tfor := t.Format("2006_01_02_0304")
 		dirpathacts := ("output\\" + "outputacts" + "\\" + "tstacts" + fmt.Sprint(ss.DirSeed) + "_runs_" + fmt.Sprint(ss.MaxRuns))
@@ -583,7 +572,6 @@ func (ss *Sim) AlphaCyc(train bool) {
 		writerw := csv.NewWriter(filew)
 		defer writerw.Flush()
 
-		
 		if ss.TestEnv.TrialName.Cur == "A" { //need to change
 			headers := []string{"Run", "Epoch", "Cycle", "TrialName"}
 
@@ -614,28 +602,28 @@ func (ss *Sim) AlphaCyc(train bool) {
 		valueStr := []string{}
 
 		for i := 0; i < 100; i++ {
-				if i == 19 || i == 99 {
-					valueStr := []string{fmt.Sprint(ss.TrainEnv.Run.Cur), fmt.Sprint(ss.TrainEnv.Epoch.Cur), fmt.Sprint(i), fmt.Sprint(ss.TestEnv.TrialName.Cur)}
-					for _, vals := range ecinTrlCycActs[i] {
-						valueStr = append(valueStr, fmt.Sprint(vals))
-					}
-					for _, vals := range ecoutTrlCycActs[i] {
-						valueStr = append(valueStr, fmt.Sprint(vals))
-					}
-					for _, vals := range dgTrlCycActs[i] {
-						valueStr = append(valueStr, fmt.Sprint(vals))
-					}
-					for _, vals := range ca3TrlCycActs[i] {
-						valueStr = append(valueStr, fmt.Sprint(vals))
-					}
-					for _, vals := range ca1TrlCycActs[i] {
-						valueStr = append(valueStr, fmt.Sprint(vals))
-					}
-					writerw.Write(valueStr)
+			if i == 19 || i == 99 {
+				valueStr := []string{fmt.Sprint(ss.TrainEnv.Run.Cur), fmt.Sprint(ss.TrainEnv.Epoch.Cur), fmt.Sprint(i), fmt.Sprint(ss.TestEnv.TrialName.Cur)}
+				for _, vals := range ecinTrlCycActs[i] {
+					valueStr = append(valueStr, fmt.Sprint(vals))
 				}
+				for _, vals := range ecoutTrlCycActs[i] {
+					valueStr = append(valueStr, fmt.Sprint(vals))
+				}
+				for _, vals := range dgTrlCycActs[i] {
+					valueStr = append(valueStr, fmt.Sprint(vals))
+				}
+				for _, vals := range ca3TrlCycActs[i] {
+					valueStr = append(valueStr, fmt.Sprint(vals))
+				}
+				for _, vals := range ca1TrlCycActs[i] {
+					valueStr = append(valueStr, fmt.Sprint(vals))
+				}
+				writerw.Write(valueStr)
 			}
-			writerw.Write(valueStr)
-			}
+		}
+		writerw.Write(valueStr)
+	}
 
 }
 
@@ -738,18 +726,17 @@ func (ss *Sim) NewRun() {
 	//ecin := ss.Net.LayerByName("ECin").(*leabra.Layer)
 	//ecout := ss.Net.LayerByName("ECout").(*leabra.Layer)
 
-	pjecinca3 := ca3.RcvPrjns.SendName("ECin").(*hip.CHLPrjn)
+	pjecinca3 := ca3.SendName("ECin").(*hip.CHLPrjn)
 	pjecinca3.Pattern().(*prjn.UnifRnd).RndSeed = ss.RndSeed
 	pjecinca3.Build()
 
-	pjecindg := dg.RcvPrjns.SendName("ECin").(*hip.CHLPrjn)
+	pjecindg := dg.SendName("ECin").(*hip.CHLPrjn)
 	pjecindg.Pattern().(*prjn.UnifRnd).RndSeed = ss.RndSeed
 	pjecindg.Build()
 
-	pjdgca3 := ca3.RcvPrjns.SendName("DG").(*hip.CHLPrjn)
+	pjdgca3 := ca3.SendName("DG").(*hip.CHLPrjn)
 	pjdgca3.Pattern().(*prjn.UnifRnd).RndSeed = ss.RndSeed
 	pjdgca3.Build()
-
 
 	ss.Net.InitWts()
 
@@ -794,10 +781,13 @@ func (ss *Sim) MemStats(train bool) {
 	cmpN := 0.0           // completion target
 	trgOnN := 0.0
 	trgOffN := 0.0
+	actMi, _ := ecout.UnitVarIdx("ActM")
+	targi, _ := ecout.UnitVarIdx("Targ")
+	actQ1i, _ := ecout.UnitVarIdx("ActQ1")
 	for ni := 0; ni < nn; ni++ {
-		actm := ecout.UnitVal1D("ActM", ni)
-		trg := ecout.UnitVal1D("Targ", ni) // full pattern target
-		inact := ecin.UnitVal1D("ActQ1", ni)
+		actm := ecout.UnitVal1D(actMi, ni)
+		trg := ecout.UnitVal1D(targi, ni) // full pattern target
+		inact := ecin.UnitVal1D(actQ1i, ni)
 		if trg < 0.5 { // trgOff
 			trgOffN += 1
 			if actm > 0.5 {

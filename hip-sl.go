@@ -282,9 +282,6 @@ func (ss *Sim) ConfigNet(net *leabra.Network) {
 	path := prjn.NewUnifRnd()
 	path.PCon = 0.25
 
-	pj = net.ConnectLayersPrjn(ca3, ca1, path, emer.Forward, &hip.CHLPrjn{})
-	pj.SetClass("HippoCHL")
-
 	pj = net.ConnectLayersPrjn(ecin, dg, ppath, emer.Forward, &hip.CHLPrjn{})
 	pj.SetClass("HippoCHL")
 
@@ -394,7 +391,6 @@ func (ss *Sim) AlphaCyc(train bool) {
 	ecout := ss.Net.LayerByName("ECout").(leabra.LeabraLayer).AsLeabra()
 	ca1FmECin := ca1.SendName("ECin").(*hip.EcCa1Prjn)
 	ca1FmCa3 := ca1.SendName("CA3").(*hip.CHLPrjn)
-	ecoutFmCa1 := ecout.SendName("CA1").(*hip.EcCa1Prjn)
 
 	// First Quarter: CA1 is driven by ECin, not by CA3 recall
 	// (which is not really active yet anyway)
@@ -412,25 +408,16 @@ func (ss *Sim) AlphaCyc(train bool) {
 	}
 	ecout.UpdateExtFlags() // call this after updating type
 
-	// DS: Any train/test changes can go here:
-	if train {
-		ecoutFmCa1.WtScale.Abs = 1
-		//ecout.Inhib.Layer.Gi = 1.8
-		//ecin.Inhib.Layer.Gi = 1.8
-	}
-
-	if !train {
-		ecoutFmCa1.WtScale.Abs = 1
-		//ecout.Inhib.Layer.Gi = 1.6
-		//ecin.Inhib.Layer.Gi = 1.6
-	}
-
 	// First Quarter: CA1 is driven by ECin, not by CA3 recall
 	// (which is not really active yet anyway)
-
 	if train {
 		ca1FmECin.WtScale.Abs = 1
 		ca1FmCa3.WtScale.Abs = 0
+	}
+
+	if !train {
+		ca1FmECin.WtScale.Abs = 3
+		ca1FmCa3.WtScale.Abs = 1
 	}
 
 	ss.Net.AlphaCycInit(train)
@@ -480,13 +467,6 @@ func (ss *Sim) AlphaCyc(train bool) {
 				ss.Net.GScaleFmAvgAct() // update computed scaling factors
 				ss.Net.InitGInc()       // scaling params change, so need to recompute all netins
 			}
-		//if !train {
-		//	ecoutFmCa1.WtScale.Abs = 1
-		//	ecoutFmpCa1.WtScale.Abs = 2
-		//}
-		//if !train {
-		//	ecoutFmCa1.WtScale.Abs = 1
-		//}
 
 		case 3: // Fourth Quarter: CA1 back to ECin drive only
 			if train {

@@ -1,7 +1,7 @@
 .vscode
 *.exe
 proj
-ouput/
+output/
 Hip_Base_epc.csv
 Hip_Base_run.csv
 hip_pairs/wts.csv

@@ -34,3 +34,5 @@ All parameter changes are listed in the `hip.go_vs_hip-SL.go_param_changes.xlsx`
 
 
 Please see https://github.com/schapirolab/hip-sl/wiki/Results for full results.
+
+Please email Dhairyya Singh (dsin@sas.upenn.edu) or Anna Schapiro (aschapir@sas.upenn.edu) with any questions.
